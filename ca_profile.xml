@@ -1,9 +1,33 @@
 <CommunityApplications>
   <Profile>
-This repository ships the Unraid Community Applications template for **UmlautAdaptarrEX** - a full Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr.
+**UmlautAdaptarrEX**
 
-UmlautAdaptarrEX is an umlaut / German-title proxy that sits between your *Arr stack (Sonarr, Radarr, Lidarr, Readarr, Prowlarr) and your indexers, normalizing German titles so releases that would otherwise be missed get matched correctly. It ships a built-in Web UI for setup, monitoring and live log streaming, and persists everything in a single SQLite file under `/data`.
+UmlautAdaptarrEX is a title-rewriting proxy that sits between your *Arr stack (Sonarr, Radarr, Lidarr, Readarr, Prowlarr / NZB Hydra) and your indexers. It rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or non-English naming are reliably matched, downloaded and imported - releases that would otherwise be silently missed.
 
+It is a full Next.js + Fastify + Prisma + SQLite rewrite of the legacy .NET UmlautAdaptarr.
+
+**What it solves**
+- *Arrs miss releases when umlauts are written as `oe`/`ae`/`ue` instead of `ö`/`ä`/`ü` (or vice versa).
+- Sonarr/Radarr expect English titles from TheTVDB/TMDB - German productions break with "release matched to series by ID" errors.
+- Badly named releases (e.g. missing GERMAN tag) can optionally be renamed so the *Arrs detect them properly.
+
+**Language plugins**
+Plugins are the core extensibility mechanism - they can be combined per library and define how titles are normalized for that language. Three plugins are shipped out of the box:
+- **German umlauts** (default) - `ö ↔ oe`, `ä ↔ ae`, `ü ↔ ue`, `ß ↔ ss` plus German title matching via TVDB/TMDB aliases
+- **Swedish umlauts** - `å ↔ a`, `ä ↔ a`, `ö ↔ o` for Swedish releases
+- **French accents** - `é è ê ë ↔ e`, `à â ↔ a`, `ç ↔ c`, `ï î ↔ i`, `ô ↔ o`, `ù û ↔ u` for French releases
+
+**What it can do**
+- Native support for Sonarr, Radarr (via alternateTitles + optional TMDB), Lidarr, Readarr, Prowlarr and NZB Hydra (Newznab + Torznab)
+- Multiple instances per *Arr type (e.g. two Sonarrs)
+- Configurable title providers in custom order: TVDB, TMDB, internal db-cache
+- Two operating modes: Prowlarr HTTP-CONNECT indexer proxy (port 5006) or direct-as-indexer (port 5005)
+- Built-in Web UI (port 5007) with setup wizard, dashboard, instance manager, sync runs and full request/rename history
+- Live log streaming via WebSocket directly in the browser
+- Persistent SQLite database under `/data` - no cache loss on restart, no external DB required
+- Bilingual UI: German, French, Swedish and English
+
+**Links**
 - Source: https://github.com/xpsony/UmlautAdaptarrEX
 - Docker image: `lexfi/umlautadaptarrex:latest`
 - Support: open an issue on GitHub or join the Discord linked below.
