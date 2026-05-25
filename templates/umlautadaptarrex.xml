@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>UmlautAdaptarrEX</Name>
+  <Repository>lexfi/umlautadaptarrex:latest</Repository>
+  <Registry>https://hub.docker.com/r/lexfi/umlautadaptarrex</Registry>
+  <Branch>
+    <Tag>latest</Tag>
+    <TagDescription>Latest stable release</TagDescription>
+  </Branch>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+
+  <Support>https://github.com/xpsony/UmlautAdaptarrEX/issues</Support>
+  <Project>https://github.com/xpsony/UmlautAdaptarrEX</Project>
+  <ReadMe>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX/main/README.en.md</ReadMe>
+  <Discord>https://discord.gg/src6zcH4rr</Discord>
+
+  <Category>Tools: MediaApp:Other</Category>
+  <WebUI>http://[IP]:[PORT:5007]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/templates/umlautadaptarrex.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon.svg</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+
+  <MinVer>6.12</MinVer>
+  <License>MIT</License>
+
+  <Changes>
+###1.1.0 - 2026-05-24
+**Security &amp; Auth Hardening**
+- Session-ID is rotated on successful admin login (session-fixation fix).
+- CSRF double-submit check is properly awaited in admin middleware; CSRF secret length validated up-front.
+- Login enumeration hardened: unknown users now run a dummy Argon2 verify so response time matches the wrong-password path.
+- Session and CSRF cookies forced to `Secure` over HTTPS regardless of `NODE_ENV`.
+- Shared log redactor masks `apiKey`, `password`, `prowlarrApiKey` etc. (including legacy routes and WebSocket broadcasts).
+- Third-party secrets (TMDB / TVDB / Prowlarr / proxy password) masked in admin settings responses.
+- `/api/health` no longer leaks `uptime`; WebSocket upgrade errors return 400 instead of crashing.
+
+**Setup Wizard**
+- Concurrent setup completions detected (Prisma P2002) and re-checked instead of failing.
+- Unknown plugin IDs rejected up-front.
+- Outbound SSRF probes (Prowlarr connect) gated until setup is authenticated.
+
+**Sync Performance**
+- `runSync` now fans out across all enabled Sonarr / Radarr / Lidarr / Readarr instances in parallel (wall-time = max-of-instances instead of sum).
+- Lidarr / Readarr nested fetches batched at concurrency 8.
+- TMDB bulk lookups: parallel batches of 10, capped at ~20 req/s -- a 500-item bulk drops from ~2 min to ~25 s.
+- TVDB bulk lookups: parallel batches of 5, capped at ~10 req/s.
+- Rewritten concurrency-safe `HostRateLimiter` (per-host promise chain) to fix a race that leaked the rate budget under parallelism.
+- `persistAndReindex` splits the mega-transaction into chunks of 50 so the SQLite writer lock is released between chunks.
+
+**Providers**
+- TMDB bulk lookups switched to `Promise.allSettled` -- a single failing ID no longer aborts the batch.
+- TVDB token-refresh retry guard prevents 401 storms from looping forever.
+- Rate limiter clamps negative `Retry-After` values; scheduler watchdog unblocks stuck sync runs.
+
+**Build &amp; Tooling**
+- pnpm bumped to 11.3.0 across Dockerfile, devcontainer and `package.json#packageManager`.
+- ESLint 9.39.4 -&gt; 10.4.0; `@types/node` 24 -&gt; 25; React version pinned to 19 in ESLint config.
+
+Full changelog: https://github.com/xpsony/UmlautAdaptarrEX/blob/main/CHANGELOG.md
+  </Changes>
+
+  <Overview>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Complete Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr.&#xD;
+&#xD;
+Sits between your *Arr stack and the indexers, rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or bad naming are reliably found, downloaded and imported. Ships a full Web UI with setup wizard, dashboard, sync runs, request and rename history, and live WebSocket logs. Configuration and title cache are stored in a persistent SQLite DB under /data - no external database required.&#xD;
+&#xD;
+Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), optional release renaming, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), German + English UI.</Overview>
+
+  <Description>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Full Next.js + Fastify + Prisma + SQLite rewrite of the legacy .NET UmlautAdaptarr.&#xD;
+&#xD;
+[b]What it solves[/b]&#xD;
+- Releases with umlauts are often not matched correctly by the *Arrs (search uses `o` instead of `oe`/`ö`, indexer mapping is missing).&#xD;
+- Sonarr / Radarr expect the English title from TheTVDB / TMDB. For German productions this leads to errors like "Found matching series/movie via grab history, but release was matched to series by ID".&#xD;
+- Bad release naming (e.g. missing GERMAN tag) is optionally corrected so the *Arrs detect releases properly.&#xD;
+&#xD;
+[b]Features[/b]&#xD;
+- Sonarr, Radarr (native, via alternateTitles + optional TMDB), Lidarr, Readarr support&#xD;
+- Prowlarr and NZB Hydra integration; Newznab (Usenet) and Torznab (Torrent) supported&#xD;
+- Multiple instances per *Arr type (e.g. 2x Sonarr)&#xD;
+- Detection of releases with German title and TVDB aliases&#xD;
+- Optional renaming of badly named releases&#xD;
+- Language plugins (combinable per library): German umlauts (default), Swedish umlauts, French accents&#xD;
+- Multiple title providers with configurable order: TVDB, TMDB, internal db-cache&#xD;
+- Web UI with setup wizard, login, dashboard, instance manager, sync runs and full request / rename history&#xD;
+- Live logs via WebSocket directly in the browser&#xD;
+- Persistent SQLite database (Prisma) - no cache loss after restart&#xD;
+- Internationalized UI: German and English&#xD;
+&#xD;
+[b]Operating modes[/b]&#xD;
+1. Prowlarr indexer proxy (recommended, port 5006): UmlautAdaptarrEX is registered as an HTTP indexer proxy with HTTP-CONNECT tunneling, no per-indexer URL changes in the *Arrs.&#xD;
+2. Direct as indexer (port 5005): enter `http://[IP]:5005/&lt;apiKey&gt;/&lt;indexer-host&gt;` per indexer in Sonarr / Radarr / Lidarr / Readarr.&#xD;
+&#xD;
+[b]Ports[/b]&#xD;
+- 5005: Fastify API + WebSocket logs - URL you point your *Arrs at, also serves /api/admin, /api/auth, /titlelookup and /ws/logs.&#xD;
+- 5006: TCP HTTP-CONNECT proxy for Prowlarr indexers - configure as Prowlarr indexer proxy with Basic auth (default user `UmlautAdaptarr`, password auto-generated and shown in the setup wizard).&#xD;
+- 5007: Next.js Web UI - on first start, open `http://[IP]:5007/setup` and the wizard walks you through account, mode, plugins, *Arrs, Prowlarr and proxy credentials.&#xD;
+&#xD;
+[b]Storage[/b]&#xD;
+Everything (settings, instances, API keys, title cache, sync runs, request and rename history) lives in a single SQLite file under /data. Map /data to your appdata share (default `/mnt/user/appdata/umlautadaptarrex`) and back it up like any other *Arr appdata.&#xD;
+&#xD;
+[b]Permissions[/b]&#xD;
+The container chowns /data to PUID:PGID on every start (default 99:100, the Unraid `nobody:users` pair), so no manual `chown` is required. Adjust PUID / PGID only if your appdata share uses a different owner.</Description>
+
+  <Config Name="Web UI Port" Target="5007" Default="5007" Mode="tcp"
+          Description="HTTP port for the Next.js web UI. Open this in your browser to reach the setup wizard and admin panel."
+          Type="Port" Display="always" Required="true" Mask="false">5007</Config>
+
+  <Config Name="API Port" Target="5005" Default="5005" Mode="tcp"
+          Description="Fastify API + WebSocket port. This is the URL you point your *Arr instances at (e.g. http://unraid-ip:5005/&lt;apikey&gt;/sonarr/api). Also serves /api/admin, /api/auth, /titlelookup and /ws/logs."
+          Type="Port" Display="always" Required="true" Mask="false">5005</Config>
+
+  <Config Name="Indexer Proxy Port" Target="5006" Default="5006" Mode="tcp"
+          Description="TCP HTTP-CONNECT proxy for Prowlarr indexers. Configure this as Prowlarr's HTTP proxy so indexer responses get rewritten on the fly."
+          Type="Port" Display="always" Required="true" Mask="false">5006</Config>
+
+  <Config Name="App Data" Target="/data" Default="/mnt/user/appdata/umlautadaptarrex" Mode="rw"
+          Description="Persistent storage for the SQLite database (umlautadaptarrex.db) and the title-cache. Do NOT delete - it contains all your *Arr connections, API keys and matching state. Ownership is fixed automatically on container start (see PUID/PGID)."
+          Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/umlautadaptarrex</Config>
+
+  <Config Name="PUID" Target="PUID" Default="99" Mode=""
+          Description="UID the app runs as. Default 99 = Unraid `nobody`, which matches the rest of your appdata shares. The entrypoint chowns /data to PUID:PGID on every start."
+          Type="Variable" Display="always" Required="false" Mask="false">99</Config>
+
+  <Config Name="PGID" Target="PGID" Default="100" Mode=""
+          Description="GID the app runs as. Default 100 = Unraid `users` group."
+          Type="Variable" Display="always" Required="false" Mask="false">100</Config>
+
+  <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode=""
+          Description="IANA timezone (e.g. Europe/Berlin, UTC, America/New_York). Affects timestamps in logs and the Web UI."
+          Type="Variable" Display="always" Required="false" Mask="false">Europe/Berlin</Config>
+
+  <Config Name="LOG_LEVEL" Target="LOG_LEVEL" Default="info" Mode=""
+          Description="Pino log level: trace, debug, info, warn, error, fatal."
+          Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
+
+  <Screenshot>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/assets/dashboard.png</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/assets/plugins.png</Screenshot>
+</Container>
