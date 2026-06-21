@@ -33,6 +33,30 @@
   <License>MIT</License>
 
   <Changes>
+###1.2.4 - 2026-06-21
+A stability and hardening release: title-provider syncs and the supervisor no longer hang on stalled connections, the indexer proxy and the admin/setup endpoints are hardened, and several title-matching and Web UI bugs are fixed. No schema changes.
+
+**Fixes**
+- Operation-mode descriptions now show the actually-configured ports (#30): the mode texts in the setup wizard and Settings -&gt; Operation mode no longer hard-code 5005/5006 but use the resolved ports (`UMLAUTADAPTARREX_*_PORT` override &gt; stored/default). Thanks to xopez (https://github.com/xopez) for reporting.
+- Sync no longer hangs on a stalled provider: TVDB, pcjones and TMDB requests now carry request timeouts, so a single unresponsive title provider can no longer block the whole sync indefinitely.
+- One bad provider no longer aborts the chain: a provider that errors (e.g. pcjones on a network failure) is now logged and skipped so the remaining providers still contribute, instead of discarding already-merged results.
+- Title matching: titles containing tabs or line breaks are no longer collapsed into a single word, and leading articles (`Der`/`Die`/`Das`/`The`/...) are now stripped regardless of capitalization, so lowercase titles produce the same search variations. Readarr external-ID titles now strip the active language's articles, not just English "the".
+- Boot &amp; restart robustness: a failed database-migration launch now surfaces an error instead of hanging the boot forever, and a Web UI process that ignores `SIGTERM` is now force-stopped within the grace window so it can no longer orphan the Web UI port on restart. The admin Restart now waits for its response to be sent before tearing down.
+
+**Improvements**
+- Indexer proxy hardening: the plain-HTTP relay path now only allows ports 80/443 (matching the HTTPS-CONNECT path), cleans up its sockets and adds a 120s idle timeout -- closing an SSRF / open-relay gap and a socket leak.
+- Reduced database load on large installs: the session last-used timestamp is now written at most once every 5 minutes instead of on every request, and "Recheck missing titles" scans the cache in bounded batches instead of loading the whole table into memory at once. Request-history rows now cap the stored domain/query length.
+
+**Security &amp; Maintenance**
+- Auth-surface hardening: the unauthenticated `setup-status` and `plugins` endpoints are now rate-limited, and `setup-status` no longer discloses the Prowlarr host or proxy username once setup is complete (the Prowlarr API key was never exposed). The Prowlarr admin actions (preview/import/test/save) are now rate-limited too.
+- Added a Content-Security-Policy header; generated passwords now use cryptographically-secure randomness only (no weak fallback, no character bias). Secret-mask detection was tightened so a real stored secret is never mistaken for the mask, while Prowlarr's asterisk masking is still recognized.
+
+**Web UI fixes**
+- Fixed a race when closing the Prowlarr-import dialog while it was still loading, a double-submit window on import, and live-log rows shifting/flickering as new lines arrive. The dashboard and instances pages now show a clear error with a retry button when a request fails, instead of looking empty.
+
+**Upgrade notes**
+- No action needed -- this release has no schema changes and no configuration changes.
+
 ###1.2.3 - 2026-06-06
 Lets the container run fully unprivileged and ships as a TrueNAS Community app. Until now the image required root at startup; root is now used only for the one-time `/data` ownership fix and the application process never runs as root. No schema changes.
 
