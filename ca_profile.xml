@@ -32,7 +32,7 @@ Plugins are the core extensibility mechanism - they can be combined per library 
 - Docker image: `lexfi/umlautadaptarrex:latest`
 - Support: open an issue on GitHub or join the Discord linked below.
   </Profile>
-  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon.svg</Icon>
+  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon.png</Icon>
   <WebPage>https://github.com/xpsony/UmlautAdaptarrEX</WebPage>
   <Discord>https://discord.gg/src6zcH4rr</Discord>
   <Photo>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/assets/dashboard.png</Photo>
