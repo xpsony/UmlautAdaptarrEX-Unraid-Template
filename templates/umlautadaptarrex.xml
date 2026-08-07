@@ -44,14 +44,15 @@ The biggest release since the rewrite: a new Library page makes the synced title
 - Row detail views for request history and sync runs (full query strings and error messages; live-updates while a sync runs).
 - CSV export for request and rename history: respects current filter+sort, Excel-safe (UTF-8 BOM for umlauts, formula injection neutralized), 10,000-row cap.
 - Instances list: per-row "Test connection" and "Sync now" actions; connection tests run server-side so API keys never round-trip through the browser.
-- History pagination (page size 25/50/100/250, server-side search) and new setting "History retention (days)" (default 30, 1-365) with automatic cleanup every 6 hours.
+- History pagination (page size 25/50/100/250, server-side search across the whole retained period -- previously search only covered the newest rows) and new setting "History retention (days)" (default 30, 1-365) with automatic cleanup every 6 hours. Thanks to Tom-Furrer for the report (#115).
 - Per-tab settings forms (dirty state no longer leaks across tabs, partial saves, unsaved-changes warning) and language switching without a page reload.
 
 **Fixes**
 - Silent failures: failed list/settings loads show an error with retry instead of "no entries"; instance enable/disable errors show a toast; the setup wizard shows field validation errors.
 - Live logs reconnect automatically with backoff after a dropped connection instead of silently going dead until reload.
 - Instances API returns 404/409 instead of 500; concurrent title-cache rechecks are rejected instead of doubling provider calls; switching the language no longer discards unsaved settings edits.
-- The version under About is trustworthy again (source builds and the 2-day security rebuild no longer show wrong/empty versions).
+- The version under About is trustworthy again (source builds and the 2-day security rebuild no longer show wrong/empty versions). Thanks to Tom-Furrer for the report (#86).
+- No more spurious FST_CSRF_MISSING_SECRET 403 warnings: the CSRF cookie could expire before the login session; both now share the same lifetime, and CSRF rejections log at debug level. Thanks to Tom-Furrer for the report (#87).
 
 **Performance &amp; Robustness**
 - Faster searches on large libraries: pre-computed match variations; variation fan-out capped at 10 per search with a total deadline at 75% of the indexer timeout (literal query and canonical title always searched) -- prevents Sonarr/Radarr timeouts on alias-heavy titles.
