@@ -33,6 +33,37 @@
   <License>MIT</License>
 
   <Changes>
+###1.4.0 - 2026-08-07
+The biggest release since the rewrite: a new Library page makes the synced title data visible and lets you fix individual mismatches with manual title overrides. Plus a full table/UX overhaul, history retention, a performance pass and a complete accessibility &amp; translation sweep. Three DB migrations run automatically on first start; no configuration changes required.
+
+**Features**
+- Library page: browse every synced title (original title, resolved German title, all search variations) across all instances, with search, filters and pagination -- previously this data was only visible in log lines.
+- Manual title overrides: fix a single mismatched title from the Library detail view. Applies to all instances, survives re-syncs, search variations recompute immediately; removing the override restores the provider title. No more clearing the whole title cache for one bad match.
+- Sortable columns on request history, rename history, sync runs and library; filters, page and sorting live in the URL (reload, back button and deep links reproduce the view).
+- Sync runs: server-side pagination, free-text search and status filter -- the old 200-run cap is gone. Also fixed: the "Successful" filter option never matched anything.
+- Row detail views for request history and sync runs (full query strings and error messages; live-updates while a sync runs).
+- CSV export for request and rename history: respects current filter+sort, Excel-safe (UTF-8 BOM for umlauts, formula injection neutralized), 10,000-row cap.
+- Instances list: per-row "Test connection" and "Sync now" actions; connection tests run server-side so API keys never round-trip through the browser.
+- History pagination (page size 25/50/100/250, server-side search) and new setting "History retention (days)" (default 30, 1-365) with automatic cleanup every 6 hours.
+- Per-tab settings forms (dirty state no longer leaks across tabs, partial saves, unsaved-changes warning) and language switching without a page reload.
+
+**Fixes**
+- Silent failures: failed list/settings loads show an error with retry instead of "no entries"; instance enable/disable errors show a toast; the setup wizard shows field validation errors.
+- Live logs reconnect automatically with backoff after a dropped connection instead of silently going dead until reload.
+- Instances API returns 404/409 instead of 500; concurrent title-cache rechecks are rejected instead of doubling provider calls; switching the language no longer discards unsaved settings edits.
+- The version under About is trustworthy again (source builds and the 2-day security rebuild no longer show wrong/empty versions).
+
+**Performance &amp; Robustness**
+- Faster searches on large libraries: pre-computed match variations; variation fan-out capped at 10 per search with a total deadline at 75% of the indexer timeout (literal query and canonical title always searched) -- prevents Sonarr/Radarr timeouts on alias-heavy titles.
+- Prowlarr-proxy timeouts now scale with the configured indexer timeout instead of hardcoded 30s/60s.
+- First-sync cache writes batched (~4x fewer DB commits), composite indexes for filtered listings, corrupt cache rows no longer prevent startup, completed sync results survive a failed status write.
+
+**Accessibility &amp; Translations**
+- Complete French and Swedish UI coverage; skip-to-content link, screen-reader labels for navigation/charts/switches, keyboard- and touch-reachable error details.
+
+**Upgrade notes**
+- No action needed: migrations run automatically, no configuration changes. Full details: https://github.com/xpsony/UmlautAdaptarrEX/blob/main/CHANGELOG.md
+
 ###1.3.0 - 2026-07-26
 Adds an optional headless mode for lean, UI-less deployments, fixes two rename/settings bugs and refreshes the whole dependency stack. Headless is opt-in and off by default, so existing installs are unaffected. No schema changes, no configuration changes.
 
