@@ -33,11 +33,11 @@
   <License>MIT</License>
 
   <Changes>
-###1.4.0 - 2026-08-27
-The biggest release since the rewrite, and it changes both halves of the product. What gets searched: German title variations are now used for films as well, the search fan-out is configurable, the sync cadence drops to a 10-minute quick sync plus a daily full sync, and a title nobody has synced yet is resolved while its search is still in flight. What you can see and fix: a new Library page makes the synced title data visible and lets you correct individual mismatches with manual title overrides, plus a full table/UX overhaul, history retention, a performance pass and a complete accessibility &amp; translation sweep. Seven DB migrations run automatically on first start. Note: three settings that used to be off for existing installations are now on for everyone -- see the upgrade notes.
+###1.4.0 - 2026-09-06
+The biggest release since the rewrite, and it changes both halves of the product. What gets searched: German title variations are now used for films as well, the search fan-out is configurable, the sync cadence drops to a 10-minute quick sync plus a daily full sync, and a title nobody has synced yet is resolved while its search is still in flight. What you can see and fix: a new Library page makes the synced title data visible and lets you correct individual mismatches with manual title overrides, plus a full table/UX overhaul, history retention, a performance pass and a complete accessibility &amp; translation sweep. Eight DB migrations run automatically on first start. Note: three settings that used to be off for existing installations are now on for everyone -- see the upgrade notes.
 
 **Features**
-- German title variations are now searched for films too -- previously only series were, so a German film release listed only under its German name was never found. Series and films are separate switches (Settings -&gt; Search), both on by default. New setting "Maximum German variations per search" (default 3) replaces a hard-coded 10; your literal query and the original title are always searched on top and never dropped by the cap.
+- German title variations are now searched for films too -- previously only series were, so a German film release listed only under its German name was never found. Series and films are separate switches (Settings -&gt; Search), both on by default. New setting "Maximum German variations per search" (default 1) replaces a hard-coded 10; your literal query and the original title are always searched on top and never dropped by the cap, and 0 means no German variations at all. Raise it if you want broader coverage.
 - Sync intervals are configurable and the default cadence is much shorter: a quick sync every 10 minutes plus a full sync every 24 hours instead of one hard-coded 12-hour pass. The quick sync processes only what actually changed (additions, removals, titles your *Arr renamed) and writes nothing when nothing changed, which is what makes a 10-minute cadence affordable. The full sync remains the pass that re-queries every title provider. Presets: Recommended (10 min / 24 h), Frugal (60 min / 24 h), Like 1.x (quick sync off / 12 h). "Sync now" is always a full sync.
 - A title nobody synced yet is resolved while its search is still in flight: for an unknown tvdbid/tmdbid/imdbid, UmlautAdaptarrEX asks your Sonarr/Radarr about that one title and uses the answer for that very request. This is the case a shorter interval cannot fix -- a Jellyseerr/Overseerr request makes Radarr create the movie and search for it in the same second. Runs in parallel with the indexer request, capped at 5 seconds, and a timeout or unreachable *Arr leaves the response exactly as before.
 - New "Search" tab in Settings and a new "Search behaviour" wizard step for all six of those controls, each with a worked example and its cost, in German, English, Swedish and French.
@@ -66,7 +66,7 @@ The biggest release since the rewrite, and it changes both halves of the product
 - TRUST_PROXY no longer accepts a hop count (it cannot validate the immediate peer). A numeric value now trusts nothing and logs a warning at startup -- use "loopback" (the default) or a comma-separated CIDR/IP list.
 
 **Performance &amp; Robustness**
-- Faster searches on large libraries: pre-computed match variations; variation fan-out capped by "Maximum German variations per search" (default 3) with a total deadline at 75% of the indexer timeout (literal query and canonical title always searched) -- prevents Sonarr/Radarr timeouts on alias-heavy titles.
+- Faster searches on large libraries: pre-computed match variations; variation fan-out capped by "Maximum German variations per search" (default 1) with a total deadline at 75% of the indexer timeout (literal query and canonical title always searched) -- prevents Sonarr/Radarr timeouts on alias-heavy titles.
 - Prowlarr-proxy timeouts now scale with the configured indexer timeout instead of hardcoded 30s/60s.
 - Sync-run history now falls under "History retention (days)" -- those rows were never purged before, which matters at the new cadence.
 - First-sync cache writes batched (~4x fewer DB commits), composite indexes for filtered listings, corrupt cache rows no longer prevent startup, completed sync results survive a failed status write.
@@ -75,9 +75,10 @@ The biggest release since the rewrite, and it changes both halves of the product
 - Complete French and Swedish UI coverage; skip-to-content link, screen-reader labels for navigation/charts/switches, keyboard- and touch-reachable error details.
 
 **Upgrade notes**
-- Seven migrations run automatically on first start; no manual action needed.
+- Eight migrations run automatically on first start; no manual action needed.
 - Three settings are now on for existing installations too: "Strip unwelcome characters", "Attach external ids" (Settings -&gt; Renaming) and "Search German variations: films" (Settings -&gt; Search). All three stay switches -- turn them off again if you want the old behaviour.
-- The film variation search is the one that costs indexer requests: worst case 3+2 requests per film search instead of 1. Lower "Maximum German variations per search" or switch the film search off if your indexer enforces a tight limit.
+- If you ran a 1.4.0 prerelease and switched one of those three off on purpose, switch it off again after the update. Nothing records why a switch was off, so the migration cannot tell "never opted in" from "deliberately disabled" and flips both. The same applies to "Maximum German variations per search": it is set to 1 for every installation, so a value you picked by hand has to be picked again.
+- The film variation search is the one that costs indexer requests: with the default cap of 1 the worst case is three requests per film search instead of one. Lower "Maximum German variations per search" to 0 or switch the film search off if your indexer enforces a tight limit.
 - The default sync cadence changed to a 10-minute quick sync plus a 24-hour full sync. The "Like 1.x" preset restores the old behaviour exactly.
 - If your indexers allow-list or rate-limit on the Sonarr/Radarr User-Agent, enable "Forward the *Arr's User-Agent" in Settings -&gt; Advanced.
 - Full details: https://github.com/xpsony/UmlautAdaptarrEX/blob/main/CHANGELOG.md
