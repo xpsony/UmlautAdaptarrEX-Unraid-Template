@@ -5,7 +5,11 @@
   <Registry>https://hub.docker.com/r/lexfi/umlautadaptarrex</Registry>
   <Branch>
     <Tag>latest</Tag>
-    <TagDescription>Latest stable release</TagDescription>
+    <TagDescription>Stable - the latest tagged release. Recommended and the default. Also picks up the automatic security rebuilds that refresh the base image between releases.</TagDescription>
+  </Branch>
+  <Branch>
+    <Tag>dev</Tag>
+    <TagDescription>Development - built from the dev branch, ahead of the stable release and potentially unstable. Database migrations run automatically and are NOT reversible, so a dev container can leave /data on a schema the stable image will not start on: back up your appdata before switching, and expect to restore it when switching back.</TagDescription>
   </Branch>
   <Network>bridge</Network>
   <MyIP/>
@@ -17,10 +21,11 @@
   <ReadMe>https://github.com/xpsony/UmlautAdaptarrEX/blob/main/README.en.md</ReadMe>
   <Discord>https://discord.gg/src6zcH4rr</Discord>
 
-  <Category>Tools: MediaApp:Other</Category>
+  <Category>Downloaders: Tools:Utilities MediaApp:Other</Category>
+  <ExtraSearchTerms>umlaut umlaute adaptarr umlautadaptarr arr sonarr radarr lidarr readarr prowlarr nzbhydra indexer proxy newznab torznab german deutsch title rewrite tvdb tmdb</ExtraSearchTerms>
   <WebUI>http://[IP]:[PORT:5007]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/templates/umlautadaptarrex.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon.svg</Icon>
+  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon-128.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
@@ -243,9 +248,13 @@ Full changelog: https://github.com/xpsony/UmlautAdaptarrEX/blob/main/CHANGELOG.m
 
   <Overview>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Complete Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr.&#xD;
 &#xD;
-Sits between your *Arr stack and the indexers, rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or bad naming are reliably found, downloaded and imported. Ships a full Web UI with setup wizard, dashboard, sync runs, request and rename history, and live WebSocket logs. Configuration and title cache are stored in a persistent SQLite DB under /data - no external database required.&#xD;
+Sits between your *Arr stack and the indexers, rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or bad naming are reliably found, downloaded and imported. Ships a full Web UI with setup wizard, dashboard, library browser, sync runs, request and rename history, and live WebSocket logs. Configuration and title cache are stored in a persistent SQLite DB under /data - no external database required.&#xD;
 &#xD;
-Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), optional release renaming, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), German + English UI.</Overview>
+Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), configurable search fan-out and release renaming, manual title overrides, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), optional headless mode without the Web UI, UI in German, English, Swedish and French.&#xD;
+&#xD;
+Ports: 5007 Web UI (open http://[IP]:5007/setup after the first start), 5005 Fastify API - the URL your *Arrs point at, 5006 HTTP-CONNECT proxy for Prowlarr indexers.&#xD;
+&#xD;
+IMPORTANT - 1:1 port mapping: each port variable sets both the in-container bind port and the published host port, so host and container side must always be identical. To move a service to another port, change the host port, the container port AND the matching UMLAUTADAPTARREX_*_PORT variable to the same value. A mismatched mapping breaks /api proxying and the indexer URLs your *Arrs point at.</Overview>
 
   <Description>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Full Next.js + Fastify + Prisma + SQLite rewrite of the legacy .NET UmlautAdaptarr.&#xD;
 &#xD;
@@ -259,13 +268,13 @@ Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidar
 - Prowlarr and NZB Hydra integration; Newznab (Usenet) and Torznab (Torrent) supported&#xD;
 - Multiple instances per *Arr type (e.g. 2x Sonarr)&#xD;
 - Detection of releases with German title and TVDB aliases&#xD;
-- Optional renaming of badly named releases&#xD;
+- Optional renaming of badly named releases, switchable rule by rule (Settings -&gt; Renaming)&#xD;- Configurable search fan-out: German title variations for series and films separately, with a cap on variations per search (Settings -&gt; Search)&#xD;- Manual title overrides: correct a single mismatched title from the library view without clearing the cache&#xD;- Configurable sync cadence: a cheap quick sync plus a full sync, each on its own interval&#xD;
 - Language plugins (combinable per library): German umlauts (default), Swedish umlauts, French accents&#xD;
 - Multiple title providers with configurable order: TVDB, TMDB, internal db-cache&#xD;
-- Web UI with setup wizard, login, dashboard, instance manager, sync runs and full request / rename history&#xD;
+- Web UI with setup wizard, login, dashboard, instance manager, library browser, sync runs and full request / rename history&#xD;
 - Live logs via WebSocket directly in the browser&#xD;
-- Persistent SQLite database (Prisma) - no cache loss after restart&#xD;
-- Internationalized UI: German and English&#xD;
+- Persistent SQLite database (Prisma) - no cache loss after restart&#xD;- Optional headless mode: run without the Web UI as a single process to save memory&#xD;
+- Internationalized UI: German, English, Swedish and French&#xD;
 &#xD;
 [b]Operating modes[/b]&#xD;
 1. Prowlarr indexer proxy (recommended, port 5006): UmlautAdaptarrEX is registered as an HTTP indexer proxy with HTTP-CONNECT tunneling, no per-indexer URL changes in the *Arrs.&#xD;
@@ -328,6 +337,10 @@ The container chowns /data to PUID:PGID on every start (default 99:100, the Unra
   <Config Name="LOG_LEVEL" Target="LOG_LEVEL" Default="info" Mode=""
           Description="Pino log level: trace, debug, info, warn, error, fatal."
           Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
+
+  <Config Name="TRUST_PROXY" Target="TRUST_PROXY" Default="loopback" Mode=""
+          Description="Only needed behind an EXTERNAL reverse proxy (Traefik / NPM / Caddy on another host or in another container). Controls how far X-Forwarded-* headers are trusted. Default 'loopback' trusts them only for requests arriving via 127.0.0.1/::1. Use a comma-separated list of trusted CIDRs/IPs for an external proxy, or 'true' to trust any hop. Hop counts (e.g. '1') are NOT supported and are ignored with a startup warning. Leave empty to keep the default."
+          Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
 
   <Config Name="Headless Mode (no Web UI)" Target="UMLAUTADAPTARREX_HEADLESS" Default="" Mode=""
           Description="Optional. Set to 1 to run WITHOUT the Next.js Web UI (and without the self-forking supervisor) as a single process, saving roughly a third / ~50-90 MB RAM. ONLY for an already-configured instance: complete the setup wizard once with the Web UI first, then set this to 1. On an unconfigured database the container refuses to start with an explanatory message. When enabled you can remove the 'Web UI Port' mapping (5007). Leave empty to keep the Web UI (default)."

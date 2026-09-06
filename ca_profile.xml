@@ -22,17 +22,19 @@ Plugins are the core extensibility mechanism - they can be combined per library 
 - Multiple instances per *Arr type (e.g. two Sonarrs)
 - Configurable title providers in custom order: TVDB, TMDB, internal db-cache
 - Two operating modes: Prowlarr HTTP-CONNECT indexer proxy (port 5006) or direct-as-indexer (port 5005)
-- Built-in Web UI (port 5007) with setup wizard, dashboard, instance manager, sync runs and full request/rename history
+- Configurable search fan-out, renaming rules and sync intervals; manual title overrides for individual mismatches
+- Optional headless mode: run without the Web UI as a single process to save memory
+- Built-in Web UI (port 5007) with setup wizard, dashboard, instance manager, library browser, sync runs and full request/rename history
 - Live log streaming via WebSocket directly in the browser
 - Persistent SQLite database under `/data` - no cache loss on restart, no external DB required
-- Bilingual UI: German, French, Swedish and English
+- UI in four languages: German, English, Swedish and French
 
 **Links**
 - Source: https://github.com/xpsony/UmlautAdaptarrEX
 - Docker image: `lexfi/umlautadaptarrex:latest`
 - Support: open an issue on GitHub or join the Discord linked below.
   </Profile>
-  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon.png</Icon>
+  <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon-128.png</Icon>
   <WebPage>https://github.com/xpsony/UmlautAdaptarrEX</WebPage>
   <Discord>https://discord.gg/src6zcH4rr</Discord>
   <Photo>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/assets/dashboard.png</Photo>
