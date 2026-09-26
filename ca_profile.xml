@@ -2,7 +2,7 @@
   <Profile>
 **UmlautAdaptarrEX**
 
-UmlautAdaptarrEX is a title-rewriting proxy that sits between your *Arr stack (Sonarr, Radarr, Lidarr, Readarr, Prowlarr / NZB Hydra) and your indexers. It rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or non-English naming are reliably matched, downloaded and imported - releases that would otherwise be silently missed.
+UmlautAdaptarrEX is a title-rewriting proxy that sits between your *Arr stack (Sonarr, Radarr, Lidarr, Readarr, Listenarr, Prowlarr / NZB Hydra) and your indexers. It rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or non-English naming are reliably matched, downloaded and imported - releases that would otherwise be silently missed.
 
 It is a full Next.js + Fastify + Prisma + SQLite rewrite of the legacy .NET UmlautAdaptarr.
 
@@ -18,7 +18,7 @@ Plugins are the core extensibility mechanism - they can be combined per library 
 - **French accents** - `é è ê ë ↔ e`, `à â ↔ a`, `ç ↔ c`, `ï î ↔ i`, `ô ↔ o`, `ù û ↔ u` for French releases
 
 **What it can do**
-- Native support for Sonarr, Radarr (via alternateTitles + optional TMDB), Lidarr, Readarr, Prowlarr and NZB Hydra (Newznab + Torznab)
+- Native support for Sonarr, Radarr (via alternateTitles + optional TMDB), Lidarr, Readarr, Listenarr (audiobooks), Prowlarr and NZB Hydra (Newznab + Torznab)
 - Multiple instances per *Arr type (e.g. two Sonarrs)
 - Configurable title providers in custom order: TVDB, TMDB, internal db-cache
 - Two operating modes: Prowlarr HTTP-CONNECT indexer proxy (port 5006) or direct-as-indexer (port 5005)

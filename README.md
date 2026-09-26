@@ -6,7 +6,7 @@
 
 This repository holds the Unraid [Community Applications](https://forums.unraid.net/topic/38582-plug-in-community-applications/) template for **[UmlautAdaptarrEX](https://github.com/xpsony/UmlautAdaptarrEX)** - a full Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr.
 
-UmlautAdaptarrEX is an umlaut / German-title proxy that sits between your *Arr stack (Sonarr, Radarr, Lidarr, Readarr, Prowlarr) and your indexers, normalizing German titles so releases that would otherwise be missed get matched correctly. It ships a built-in Web UI for setup, monitoring and live log streaming, and persists everything in a single SQLite file under `/data`.
+UmlautAdaptarrEX is an umlaut / German-title proxy that sits between your *Arr stack (Sonarr, Radarr, Lidarr, Readarr, Listenarr, Prowlarr) and your indexers, normalizing German titles so releases that would otherwise be missed get matched correctly. It ships a built-in Web UI for setup, monitoring and live log streaming, and persists everything in a single SQLite file under `/data`.
 
 ## Install via Community Applications
 

@@ -22,7 +22,7 @@
   <Discord>https://discord.gg/src6zcH4rr</Discord>
 
   <Category>Downloaders: Tools:Utilities MediaApp:Other</Category>
-  <ExtraSearchTerms>umlaut umlaute adaptarr umlautadaptarr arr sonarr radarr lidarr readarr prowlarr nzbhydra indexer proxy newznab torznab german deutsch title rewrite tvdb tmdb</ExtraSearchTerms>
+  <ExtraSearchTerms>umlaut umlaute adaptarr umlautadaptarr arr sonarr radarr lidarr readarr listenarr audiobook hoerbuch prowlarr nzbhydra indexer proxy newznab torznab german deutsch title rewrite tvdb tmdb</ExtraSearchTerms>
   <WebUI>http://[IP]:[PORT:5007]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/templates/umlautadaptarrex.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon-128.png</Icon>
@@ -38,6 +38,22 @@
   <License>MIT</License>
 
   <Changes>
+###1.4.1 - 2026-09-26
+Adds Listenarr as a fifth *Arr, so audiobook libraries get the same umlaut and German-title treatment as series, films, music and books. Plus a dependency refresh. One DB migration runs automatically on first start. Nothing changes for installations that do not add a Listenarr instance.
+
+**Features**
+- Listenarr support (audiobooks): the library is synced, searches are fanned out over the spelling variations, and results are rewritten to "Author - Title". It reuses the book media type, so the German umlaut plugin and the renaming options apply unchanged.
+- A Listenarr search that arrives without a category (Listenarr's indexer categories are optional) is still recognised as a book search, via Listenarr's own User-Agent. Every other caller behaves exactly as before.
+- One audiobook is found both under Listenarr's "Title Author Series" and under Readarr's "Title Author" spelling, from a single cache row instead of a duplicate library entry.
+
+**Upgrade notes**
+- Listenarr instances are added by hand under Arr instances -&gt; Add instance. Prowlarr has no Listenarr application type, so the setup wizard cannot discover one.
+- If you registered Listenarr in Prowlarr as a Readarr application and imported it in the wizard, that instance was stored as Readarr and syncs nothing: delete it and add it again as type Listenarr.
+- The migration only adds one nullable column; no re-sync needed.
+
+**Dependencies**
+- Refreshed within the existing version ranges: Next.js 16.3.6, React 19.3, Fastify 5.12.5, Zod 4.6.5, undici 8.11 and others.
+
 ###1.4.0 - 2026-09-06
 The biggest release since the rewrite, and it changes both halves of the product. What gets searched: German title variations are now used for films as well, the search fan-out is configurable, the sync cadence drops to a 10-minute quick sync plus a daily full sync, and a title nobody has synced yet is resolved while its search is still in flight. What you can see and fix: a new Library page makes the synced title data visible and lets you correct individual mismatches with manual title overrides, plus a full table/UX overhaul, history retention, a performance pass and a complete accessibility &amp; translation sweep. Eight DB migrations run automatically on first start. Note: three settings that used to be off for existing installations are now on for everyone -- see the upgrade notes.
 
@@ -246,17 +262,17 @@ Adds the Prowlarr indexer-patch dialog, plus a dependency refresh and a Docker h
 Full changelog: https://github.com/xpsony/UmlautAdaptarrEX/blob/main/CHANGELOG.md
   </Changes>
 
-  <Overview>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Complete Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr.&#xD;
+  <Overview>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr, Listenarr and Prowlarr. Complete Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr.&#xD;
 &#xD;
 Sits between your *Arr stack and the indexers, rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or bad naming are reliably found, downloaded and imported. Ships a full Web UI with setup wizard, dashboard, library browser, sync runs, request and rename history, and live WebSocket logs. Configuration and title cache are stored in a persistent SQLite DB under /data - no external database required.&#xD;
 &#xD;
-Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), configurable search fan-out and release renaming, manual title overrides, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), optional headless mode without the Web UI, UI in German, English, Swedish and French.&#xD;
+Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Listenarr (audiobooks) / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), configurable search fan-out and release renaming, manual title overrides, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), optional headless mode without the Web UI, UI in German, English, Swedish and French.&#xD;
 &#xD;
 Ports: 5007 Web UI (open http://[IP]:5007/setup after the first start), 5005 Fastify API - the URL your *Arrs point at, 5006 HTTP-CONNECT proxy for Prowlarr indexers.&#xD;
 &#xD;
 IMPORTANT - 1:1 port mapping: each port variable sets both the in-container bind port and the published host port, so host and container side must always be identical. To move a service to another port, change the host port, the container port AND the matching UMLAUTADAPTARREX_*_PORT variable to the same value. A mismatched mapping breaks /api proxying and the indexer URLs your *Arrs point at.</Overview>
 
-  <Description>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Full Next.js + Fastify + Prisma + SQLite rewrite of the legacy .NET UmlautAdaptarr.&#xD;
+  <Description>UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr, Listenarr and Prowlarr. Full Next.js + Fastify + Prisma + SQLite rewrite of the legacy .NET UmlautAdaptarr.&#xD;
 &#xD;
 [b]What it solves[/b]&#xD;
 - Releases with umlauts are often not matched correctly by the *Arrs (search uses `o` instead of `oe`/`ö`, indexer mapping is missing).&#xD;
@@ -264,7 +280,8 @@ IMPORTANT - 1:1 port mapping: each port variable sets both the in-container bind
 - Bad release naming (e.g. missing GERMAN tag) is optionally corrected so the *Arrs detect releases properly.&#xD;
 &#xD;
 [b]Features[/b]&#xD;
-- Sonarr, Radarr (native, via alternateTitles + optional TMDB), Lidarr, Readarr support&#xD;
+- Sonarr, Radarr (native, via alternateTitles + optional TMDB), Lidarr, Readarr and Listenarr (audiobooks) support&#xD;
+- Listenarr instances are added by hand under Arr instances -&gt; Add instance: Prowlarr has no Listenarr application type, so the setup wizard cannot discover them&#xD;
 - Prowlarr and NZB Hydra integration; Newznab (Usenet) and Torznab (Torrent) supported&#xD;
 - Multiple instances per *Arr type (e.g. 2x Sonarr)&#xD;
 - Detection of releases with German title and TVDB aliases&#xD;
@@ -278,7 +295,7 @@ IMPORTANT - 1:1 port mapping: each port variable sets both the in-container bind
 &#xD;
 [b]Operating modes[/b]&#xD;
 1. Prowlarr indexer proxy (recommended, port 5006): UmlautAdaptarrEX is registered as an HTTP indexer proxy with HTTP-CONNECT tunneling, no per-indexer URL changes in the *Arrs.&#xD;
-2. Direct as indexer (port 5005): enter `http://[IP]:5005/&lt;apiKey&gt;/&lt;indexer-host&gt;` per indexer in Sonarr / Radarr / Lidarr / Readarr.&#xD;
+2. Direct as indexer (port 5005): enter `http://[IP]:5005/&lt;apiKey&gt;/&lt;indexer-host&gt;` per indexer in Sonarr / Radarr / Lidarr / Readarr / Listenarr.&#xD;
 &#xD;
 [b]Ports[/b]&#xD;
 - 5005: Fastify API + WebSocket logs - URL you point your *Arrs at, also serves /api/admin, /api/auth, /titlelookup and /ws/logs.&#xD;
