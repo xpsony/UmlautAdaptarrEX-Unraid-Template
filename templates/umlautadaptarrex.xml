@@ -38,21 +38,37 @@
   <License>MIT</License>
 
   <Changes>
-###1.4.1 - 2026-09-26
-Adds Listenarr as a fifth *Arr, so audiobook libraries get the same umlaut and German-title treatment as series, films, music and books. Plus a dependency refresh. One DB migration runs automatically on first start. Nothing changes for installations that do not add a Listenarr instance.
+###1.5.0 - 2026-10-25
+The biggest update since 1.4.0. Listenarr joins as a fifth *Arr, so audiobook libraries get the same umlaut and German-title treatment as series, films, music and books. The variation search can now be tuned per media type and per indexer, so indexers with tight limits stop using up requests on variations. Plus a round of fixes and a dependency refresh. Four DB migrations run automatically on first start, and existing installations keep their current behaviour. 1.4.1 was never released; its changes are part of this release.
 
 **Features**
 - Listenarr support (audiobooks): the library is synced, searches are fanned out over the spelling variations, and results are rewritten to "Author - Title". It reuses the book media type, so the German umlaut plugin and the renaming options apply unchanged.
 - A Listenarr search that arrives without a category (Listenarr's indexer categories are optional) is still recognised as a book search, via Listenarr's own User-Agent. Every other caller behaves exactly as before.
 - One audiobook is found both under Listenarr's "Title Author Series" and under Readarr's "Title Author" spelling, from a single cache row instead of a duplicate library entry.
+- Optional per Readarr/Listenarr instance: also search without the author (Arr instances -&gt; edit, off by default). The spelling variations of the title alone are searched too, for indexers that list books and audiobooks without the author. They count towards the books &amp; audiobooks cap. A hit without the author in the release name is found but not renamed.
+- Series, films, music, and books &amp; audiobooks each have their own variation-search switch and their own "At most variations" cap (Settings -&gt; Search and the setup wizard). Music and books used to follow the film switch, and one cap applied to everything.
+- Variation search per indexer: under Settings -&gt; Search -&gt; Variation search per indexer, every indexer can get its own switches and caps per media type, e.g. to leave a free-tier indexer out of the variation search for films. Without a custom setting an indexer follows the global values. Changes take effect immediately, without a restart.
+
+**Fixes**
+- Saving a Settings tab no longer resets the settings on the other tabs to their defaults, and no longer fails with 409 when UMLAUTADAPTARREX_PROXY_PORT is set to anything but 5006. Thanks to Blacks-Army for the report (#152).
+- An indexer error sent as HTTP 200 ("Request limit reached", rejected API key) no longer triggers the variation search. A limit hit partway through the variations stops the remaining ones and returns the results collected so far. Thanks to luckyaid for the report.
+- Lidarr text searches for albums with umlauts find their album again, so the variations are searched for music too. Thanks to luckyaid for the report.
+- Patching indexers in Prowlarr no longer skips an indexer that is at its daily limit, and the setup wizard names every indexer whose patch failed. Thanks to luckyaid for both reports.
+- The Search settings tab shows the stored values again instead of the defaults.
+
+**Improvements**
+- The indexer patch list shows indexers that still hang on another proxy (e.g. the old UmlautAdaptarr) and can take that proxy's tag off them during the patch. FlareSolverr is never touched. Thanks to luckyaid for the report and the idea for removing the tag.
+- A 403 on the direct indexer URL now logs a hint when the indexer key or the old "_" placeholder was used instead of the UmlautAdaptarrEX API key.
 
 **Upgrade notes**
-- Listenarr instances are added by hand under Arr instances -&gt; Add instance. Prowlarr has no Listenarr application type, so the setup wizard cannot discover one.
-- If you registered Listenarr in Prowlarr as a Readarr application and imported it in the wizard, that instance was stored as Readarr and syncs nothing: delete it and add it again as type Listenarr.
-- The migration only adds one nullable column; no re-sync needed.
+- Listenarr instances are added by hand under Arr instances -&gt; Add instance. Prowlarr has no Listenarr application type, so the setup wizard cannot discover one. If you registered Listenarr in Prowlarr as a Readarr application and imported it in the wizard, that instance was stored as Readarr and syncs nothing: delete it and add it again as type Listenarr.
+- All four migrations keep today's behaviour: one adds a nullable column (no re-sync needed), the music and books switches start from the film switch, the current variation cap is copied into all four media types, and "Also search without the author" starts off for every instance.
+- If settings on other tabs changed back unexpectedly after a save on 1.4.x, check and re-enter them once.
+- Music albums get new lookup keys. The next sync rewrites them on its own, no action needed.
+- Scripts that call the admin API directly: maxTitleVariations is replaced by tvMaxTitleVariations, movieMaxTitleVariations, audioMaxTitleVariations and bookMaxTitleVariations. The legacy indexer routes are unchanged.
 
 **Dependencies**
-- Refreshed within the existing version ranges: Next.js 16.3.6, React 19.3, Fastify 5.12.5, Zod 4.6.5, undici 8.11 and others.
+- Refreshed: Next.js 16.4.3, React 19.3.1, Fastify 5.12.7, Zod 4.6.7, Prisma 7.10.1, undici 8.12 and others.
 
 ###1.4.0 - 2026-09-06
 The biggest release since the rewrite, and it changes both halves of the product. What gets searched: German title variations are now used for films as well, the search fan-out is configurable, the sync cadence drops to a 10-minute quick sync plus a daily full sync, and a title nobody has synced yet is resolved while its search is still in flight. What you can see and fix: a new Library page makes the synced title data visible and lets you correct individual mismatches with manual title overrides, plus a full table/UX overhaul, history retention, a performance pass and a complete accessibility &amp; translation sweep. Eight DB migrations run automatically on first start. Note: three settings that used to be off for existing installations are now on for everyone -- see the upgrade notes.
