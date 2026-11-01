@@ -38,6 +38,16 @@
   <License>MIT</License>
 
   <Changes>
+###1.5.1 - 2026-11-01
+A patch release with a single fix for music and audiobook libraries. No DB migration, nothing to configure.
+
+**Fixes**
+- A self-titled album is now recognised regardless of upper and lower case. The artist name is stripped out of the album title before the match list is built, so a self-titled album does not match on the artist name alone. That comparison was case-sensitive, so an album stored as "GROLLT!" by the artist "Grollt!" was not seen as self-titled and the bare artist name stayed in the match list. Every release of that artist contains that name, so any of their releases could be renamed to that one album. The artist is only stripped as a whole word, so an album "VEXILLUM" by "Vex" keeps its full title, while artist names that start or end in punctuation ("Nord/Stil", "Grollt!", "+71") are still stripped correctly. Thanks to LuckyAid for the pull request and the fix (#159).
+
+**Upgrade notes**
+- Nothing to do. The match lists are rebuilt by the next sync: the quick sync within 10 minutes, or the next full sync if quick sync is off.
+- Trade-off on purpose: a self-titled album has nothing left after the artist name is stripped, so its releases are found but not renamed. That is what self-titled albums already did when the case matched exactly, and it is the safe side - the alternative renamed the artist's whole discography to that one album.
+
 ###1.5.0 - 2026-10-25
 The biggest update since 1.4.0. Listenarr joins as a fifth *Arr, so audiobook libraries get the same umlaut and German-title treatment as series, films, music and books. The variation search can now be tuned per media type and per indexer, so indexers with tight limits stop using up requests on variations. Plus a round of fixes and a dependency refresh. Four DB migrations run automatically on first start, and existing installations keep their current behaviour. 1.4.1 was never released; its changes are part of this release.
 
